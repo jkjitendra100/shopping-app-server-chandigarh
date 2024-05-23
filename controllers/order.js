@@ -54,7 +54,7 @@ export const getAdminOrders = asyncAwaitError(async (req, res, next) => {
 export const getMyOrders = asyncAwaitError(async (req, res, next) => {
   const orders = await Order.find({ user: req.user._id })
     .populate("orderItems.product")
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: 1 });
 
   if (!orders || orders?.length === 0)
     return next(new ErrorHandler("No order found", 404));
