@@ -12,8 +12,8 @@ const router = express.Router();
 
 router.post("/new", isAuthenticated, createOrder);
 // router.post("/payment", isAuthenticated, processPayment);
-router.get("/my", isAuthenticated, getMyOrders);
-router.get("/admin", isAuthenticated, isAdmin, getAdminOrders);
+router.get("/my/:pageNo", isAuthenticated, getMyOrders);
+router.get("/admin/:pageNo", isAuthenticated, isAdmin, getAdminOrders);
 router
   .route("/single/:id")
   .get(isAuthenticated, getOrderDetails)
