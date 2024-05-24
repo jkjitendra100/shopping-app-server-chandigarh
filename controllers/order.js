@@ -41,20 +41,37 @@ export const createOrder = asyncAwaitError(async (req, res, next) => {
 });
 
 export const getAdminOrders = asyncAwaitError(async (req, res, next) => {
-  const orders = await Order.find({}).sort({ createdAt: -1 });
+  const { pageNo } = req?.params;
+  let limit = 10;
+  let skip = (pageNo - 1) * limit;
+  const orders = await Order.find({})
+    .populate("orderItems.product")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  let totalCount = await Order.countDocuments();
 
   if (!orders) return next(new ErrorHandler("No order found", 404));
 
   res.status(200).json({
     success: true,
     orders,
+    totalCount,
   });
 });
 
 export const getMyOrders = asyncAwaitError(async (req, res, next) => {
+  const { pageNo } = req?.params;
+  let limit = 10;
+  let skip = (pageNo - 1) * limit;
   const orders = await Order.find({ user: req.user._id })
     .populate("orderItems.product")
-    .sort({ createdAt: 1 });
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  let totalCount = await Order.countDocuments({ user: req.user._id });
 
   if (!orders || orders?.length === 0)
     return next(new ErrorHandler("No order found", 404));
@@ -62,6 +79,7 @@ export const getMyOrders = asyncAwaitError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     orders,
+    totalCount,
   });
 });
 
