@@ -46,6 +46,7 @@ export const getAdminOrders = asyncAwaitError(async (req, res, next) => {
   let skip = (pageNo - 1) * limit;
   const orders = await Order.find({})
     .populate("orderItems.product")
+    .populate("user")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
