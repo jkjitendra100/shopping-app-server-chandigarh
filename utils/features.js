@@ -6,7 +6,7 @@ import path from "path";
 export const getDataUri = (file) => {
   const parser = new DataUriParser();
   const extname = path.extname(file.originalname).toString();
-  return parser.format(extname, file.buffer); 
+  return parser.format(extname, file.buffer);
 };
 
 export const sendToken = (user, res, message, statusCode) => {
@@ -17,9 +17,9 @@ export const sendToken = (user, res, message, statusCode) => {
     .status(200)
     .cookie("token", token, {
       ...cookieOptions,
-      expires: new Date(Date.now() + 15 * 24 + 60 * 60 * 1000),
+      expires: new Date(Date.now() + 100 * 24 + 60 * 60 * 1000),
     })
-    .json({ status: statusCode, message });
+    .json({ status: statusCode, message, token });
 };
 
 export const cookieOptions = {
