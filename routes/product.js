@@ -15,7 +15,7 @@ import { multipleFileUpload, singleFileUpload } from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.get("/all", isAdmin, getAllAdminProducts);
+router.get("/all", getAllAdminProducts);
 router
   .route("/product/:id")
   .get(getProductDetails)
