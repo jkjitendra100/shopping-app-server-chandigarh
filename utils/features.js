@@ -11,13 +11,13 @@ export const getDataUri = (file) => {
 
 export const sendToken = (user, res, message, statusCode) => {
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "15d",
+    expiresIn: "100000d",
   });
   res
     .status(200)
     .cookie("token", token, {
       ...cookieOptions,
-      expires: new Date(Date.now() + 100 * 24 + 60 * 60 * 1000),
+      expires: new Date(Date.now() + 100000 * 24 + 60 * 60 * 1000),
     })
     .json({ status: statusCode, message, token });
 };
