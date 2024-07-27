@@ -13,7 +13,7 @@ import {
 // Login function
 export const login = asyncAwaitError(async (req, res, next) => {
   const { email, password } = req.body;
-  await User.findOne({ email: { $regex: new RegExp('^' + email, 'i') } })
+  await User.findOne({ email: { $regex: new RegExp("^" + email, "i") } })
     .select("+password")
     .then(async (user) => {
       if (!user) return next(new ErrorHandler("User doesn't exist!", 400));
@@ -24,7 +24,7 @@ export const login = asyncAwaitError(async (req, res, next) => {
         return next(new ErrorHandler("Incorrect email or password!", 400));
       }
 
-      sendToken(user, res, "User logged in successfully😊", 200);
+      sendToken(user, res, "Welcome back", 200);
     });
 });
 

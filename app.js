@@ -33,12 +33,14 @@ import product from "./routes/product.js";
 import order from "./routes/order.js";
 import Payment from "./routes/payment.js";
 import coin from "./routes/coin.js";
+import withdraw from "./routes/withdraw.js";
 
 app.use("/api/v1/user", user);
 app.use("/api/v1/product", product);
 app.use("/api/v1/order", order);
 app.use("/api/v1/payment", Payment);
 app.use("/api/v1/coin", coin);
+app.use("/api/v1/withdraw", withdraw);
 
 // Error middleware
 app.use(errorMiddleware);

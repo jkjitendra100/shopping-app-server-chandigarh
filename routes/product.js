@@ -24,7 +24,7 @@ router
 router.put("/:id", isAuthenticated, isAdmin, singleFileUpload, updateProduct);
 router.post(
   "/new",
-  isAuthenticated,    
+  isAuthenticated,
   isAdmin,
   multipleFileUpload,
   addNewProduct
@@ -36,6 +36,10 @@ router
 
 // Get cart products
 router.get("/cartItems", isAuthenticated, showCartItems);
-router.get(`/getProductOrdersReport/:productId`, isAuthenticated, getProductOrdersReport)
+router.get(
+  `/getProductOrdersReport/:productId`,
+  isAuthenticated,
+  getProductOrdersReport
+);
 
 export default router;

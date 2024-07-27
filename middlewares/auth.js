@@ -50,19 +50,19 @@ export async function isAdmin(req, res, next) {
       return next(new ErrorHandler("User is not logged in", 400));
     }
 
-    const { id } = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(id);
+    const { _id } = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(_id);
     if (!user) {
       // Don't change this message
       return next(new ErrorHandler("invalid token", 400));
     }
 
-    if (user?.role !== "admin") {
+    if (user.role !== "admin") {
+      // Don't change this message
       return next(
-        new ErrorHandler("You are not authorized to access this route!", 400)
+        new ErrorHandler("You are not allowed to access this route", 400)
       );
     }
-
     req.user = user;
 
     next();
