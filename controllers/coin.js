@@ -26,7 +26,7 @@ export const addCoinRequest = asyncAwaitError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "Product added successfully",
+    message: "Request placed successfully!",
   });
 });
 
@@ -92,17 +92,18 @@ export const rejectCoin = asyncAwaitError(async (req, res, next) => {
   });
 });
 
-export const UpdateCoinToUserProfile = asyncAwaitError(async (req, res, next) => {
-  const { coin, userId } = req.body;
+export const UpdateCoinToUserProfile = asyncAwaitError(
+  async (req, res, next) => {
+    const { coin, userId } = req.body;
 
-  
-  const user = await User.findById(userId);
-  const existingCoin = user?.coins;
-  user.coins = Number(existingCoin) + Number(coin || 0);
-  await user.save();  
+    const user = await User.findById(userId);
+    const existingCoin = user?.coins;
+    user.coins = Number(existingCoin) + Number(coin || 0);
+    await user.save();
 
-  res.status(200).json({
-    success: true,
-    message: "Coin added successfully",
-  });
-});
+    res.status(200).json({
+      success: true,
+      message: "Coin added successfully",
+    });
+  }
+);
