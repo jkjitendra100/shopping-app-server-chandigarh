@@ -27,7 +27,7 @@ const schema = new mongoose.Schema({
 
       product: {
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Product",
+        ref: "Product",
         required: false,
       },
     },
@@ -59,6 +59,13 @@ const schema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+
+  acceptedByUserId: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 
   createdAt: {
     type: Date,

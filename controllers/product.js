@@ -18,19 +18,22 @@ export const getAllAdminProducts = asyncAwaitError(async (req, res, next) => {
 export const getProductDetails = asyncAwaitError(async (req, res, next) => {
   console.log(req.params.id);
   const product = await Product.findById(req.params.id);
-  const ordersCount = await Order.countDocuments({ "orderItems.product": req.params.id, })
+  const ordersCount = await Order.countDocuments({
+    "orderItems.product": req.params.id,
+  });
 
   if (!product) return next(new ErrorHandler("Product not found", 404));
 
   res.status(200).json({
     success: true,
     product,
-    ordersCount: ordersCount
+    ordersCount: ordersCount,
   });
 });
 
 export const addNewProduct = asyncAwaitError(async (req, res, next) => {
-  const { name, description, price, players } = req.body;
+  const { name, description, price, players, noOfPlayersToBeSelected } =
+    req.body;
   if (req.files?.length <= 0)
     return next(new ErrorHandler("Please choose product images", 400));
 
@@ -59,6 +62,7 @@ export const addNewProduct = asyncAwaitError(async (req, res, next) => {
     price: Number(price),
     images,
     players,
+    noOfPlayersToBeSelected: Number(noOfPlayersToBeSelected),
   });
 
   res.status(200).json({
@@ -289,7 +293,7 @@ export const getProductOrdersReport = asyncAwaitError(
 
     const orders = await Order.find({
       "orderItems.product": productId,
-    }).populate("user")
+    }).populate("user");
 
     res.status(200).json({
       success: true,

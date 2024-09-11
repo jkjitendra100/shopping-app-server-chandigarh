@@ -8,13 +8,33 @@ const withdrawSchema = new mongoose.Schema({
 
   status: {
     type: String,
+    enum: ["pending", "paid", "rejected"],
     default: "pending",
-    enum: ["pending", "accepted", "rejected"],
   },
 
   userId: {
     type: mongoose.Types.ObjectId,
     required: [true, "User id required"],
+  },
+
+  upiId: {
+    type: String,
+  },
+
+  nameOnUpi: {
+    type: String,
+  },
+
+  name: {
+    type: String,
+  },
+
+  email: {
+    type: String,
+  },
+
+  mobile: {
+    type: String,
   },
 
   createdAt: {

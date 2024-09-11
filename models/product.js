@@ -16,6 +16,10 @@ const schema = new mongoose.Schema({
     required: [true, "Please enter product price"],
   },
 
+noOfPlayersToBeSelected: {
+    type: Number,
+  },
+
   players: [String],
 
   images: [{ public_id: String, url: String }],
