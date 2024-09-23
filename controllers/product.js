@@ -32,8 +32,18 @@ export const getProductDetails = asyncAwaitError(async (req, res, next) => {
 });
 
 export const addNewProduct = asyncAwaitError(async (req, res, next) => {
-  const { name, description, price, players, noOfPlayersToBeSelected } =
-    req.body;
+  const {
+    name,
+    description,
+    price,
+    players,
+    noOfPlayersToBeSelected,
+    matchTime,
+    question1,
+    question2,
+    question3,
+    question4,
+  } = req.body;
   if (req.files?.length <= 0)
     return next(new ErrorHandler("Please choose product images", 400));
 
@@ -62,7 +72,12 @@ export const addNewProduct = asyncAwaitError(async (req, res, next) => {
     price: Number(price),
     images,
     players,
+    matchTime: Number(matchTime),
     noOfPlayersToBeSelected: Number(noOfPlayersToBeSelected),
+    question1,
+    question2,
+    question3,
+    question4,
   });
 
   res.status(200).json({

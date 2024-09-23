@@ -3,6 +3,8 @@ import { Order } from "../models/order.js";
 import ErrorHandler from "../utils/error.js";
 import { User } from "../models/user.js";
 import { Product } from "../models/product.js";
+import { getDataUri } from "../utils/features.js";
+import cloudinary from "cloudinary";
 
 export const createOrder = asyncAwaitError(async (req, res, next) => {
   const {
@@ -12,6 +14,10 @@ export const createOrder = asyncAwaitError(async (req, res, next) => {
     taxPrice,
     selectedPlayers,
     totalAmount,
+    question1,
+    question2,
+    question3,
+    question4,
   } = req.body;
 
   const user = await User.findById(req.user._id);
@@ -28,6 +34,10 @@ export const createOrder = asyncAwaitError(async (req, res, next) => {
     taxPrice,
     selectedPlayers,
     totalAmount,
+    question1,
+    question2,
+    question3,
+    question4,
   });
 
   // Decrease user coins
@@ -36,7 +46,7 @@ export const createOrder = asyncAwaitError(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    message: "Order places successfully",
+    message: "Order placed successfully",
   });
 });
 
@@ -66,7 +76,34 @@ export const getAllOrders = asyncAwaitError(async (req, res, next) => {
   const { pageNo } = req?.params;
   let limit = 10;
   let skip = (pageNo - 1) * limit;
-  const orders = await Order.find({})
+  const orders = await Order.find({
+    acceptedByUserId: { $exists: true, $eq: [] },
+  })
+    .populate("orderItems.product")
+    .populate("user")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  let totalCount = await Order.countDocuments();
+
+  if (!orders) return next(new ErrorHandler("No order found", 404));
+
+  res.status(200).json({
+    success: true,
+    orders,
+    totalCount,
+  });
+});
+
+export const getAllAcceptedOrders = asyncAwaitError(async (req, res, next) => {
+  const { pageNo } = req?.params;
+  let limit = 20;
+  let skip = (pageNo - 1) * limit;
+
+  const orders = await Order.find({
+    acceptedByUserId: { $exists: true, $ne: null, $ne: [] },
+  })
     .populate("orderItems.product")
     .populate("user")
     .sort({ createdAt: -1 })
@@ -159,9 +196,8 @@ export const processOrder = asyncAwaitError(async (req, res, next) => {
 
 export const acceptOrder = asyncAwaitError(async (req, res, next) => {
   const { orderId } = req.query;
+  const { username } = req.body;
   const userId = req.user._id;
-
-  console.log(orderId, userId);
 
   const existingOrder = await Order.findById(orderId);
 
@@ -186,12 +222,71 @@ export const acceptOrder = asyncAwaitError(async (req, res, next) => {
   existingUser.coins = existingUser.coins - existingProduct.price;
   tempArr.push(userId);
 
+  existingOrder.username = username;
+  existingOrder.joinedAt = new Date();
+
   await existingOrder.save();
   await existingUser.save();
 
   res.status(200).json({
     success: true,
     message: "Order accepted successfully",
+  });
+});
+
+export const uploadWinScreenShort = asyncAwaitError(async (req, res, next) => {
+  const { orderId } = req.body;
+  const userId = req.user._id;
+
+  const tempScreenShort = req.files?.[0];
+
+  console.log(orderId);
+
+  if (!tempScreenShort)
+    return next(new ErrorHandler("Please choose screen short", 400));
+
+  const existingOrder = await Order.findById(orderId);
+
+  if (!existingOrder) return next(new ErrorHandler("No order found", 404));
+
+  let existingScreenShorts = existingOrder.winScreenShorts;
+
+  // Apply validations
+  if (
+    ![
+      existingOrder?.user?.toString(),
+      existingOrder?.acceptedByUserId?.[0]?.toString(),
+    ]?.includes(userId?.toString())
+  ) {
+    return next(
+      new ErrorHandler("You are not eligible to upload screen short", 400)
+    );
+  }
+
+  if (
+    existingScreenShorts?.find(
+      (e) => e?.updatedBy?.toString() === userId?.toString()
+    )
+  ) {
+    return next(
+      new ErrorHandler("You have already uploaded screen short", 400)
+    );
+  }
+
+  const file = getDataUri(tempScreenShort);
+  const myCloud = await cloudinary.v2.uploader.upload(file.content);
+
+  existingScreenShorts = existingScreenShorts?.push({
+    imageUrl: myCloud.secure_url,
+    updatedAt: new Date(),
+    updatedBy: userId,
+  });
+
+  await existingOrder.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Screen short updated successfully",
   });
 });
 
@@ -202,6 +297,12 @@ export const cancelMyOrder = asyncAwaitError(async (req, res, next) => {
   const existingOrder = await Order.findById(orderId);
 
   if (!existingOrder) return next(new ErrorHandler("No order found", 404));
+
+  if (existingOrder?.acceptedByUserId?.length > 0) {
+    return next(
+      new ErrorHandler("Order cannot be cancelled (Accepted by another user)")
+    );
+  }
 
   const existingProduct = await Product.findById(
     existingOrder.orderItems?.[0]?.product

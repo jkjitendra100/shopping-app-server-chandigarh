@@ -67,6 +67,38 @@ const schema = new mongoose.Schema({
     },
   ],
 
+  question1: {
+    type: String,
+  },
+
+  question2: {
+    type: String,
+  },
+
+  question3: {
+    type: String,
+  },
+
+  question4: {
+    type: String,
+  },
+
+  username: {
+    type: String,
+  },
+
+  joinedAt: {
+    type: Date,
+  },
+
+  winScreenShorts: [
+    {
+      imageUrl: String,
+      updatedAt: Date,
+      updatedBy: mongoose.Schema.Types.ObjectId,
+    },
+  ],
+
   createdAt: {
     type: Date,
     default: Date.now(),

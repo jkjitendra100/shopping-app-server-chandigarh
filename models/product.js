@@ -16,13 +16,33 @@ const schema = new mongoose.Schema({
     required: [true, "Please enter product price"],
   },
 
-noOfPlayersToBeSelected: {
+  noOfPlayersToBeSelected: {
+    type: Number,
+  },
+
+  matchTime: {
     type: Number,
   },
 
   players: [String],
 
   images: [{ public_id: String, url: String }],
+
+  question1: {
+    type: String,
+  },
+
+  question2: {
+    type: String,
+  },
+
+  question3: {
+    type: String,
+  },
+
+  question4: {
+    type: String,
+  },
 
   createdAt: {
     type: Date,
