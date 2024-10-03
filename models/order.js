@@ -83,8 +83,19 @@ const schema = new mongoose.Schema({
     type: String,
   },
 
+  // Joined by username
   username: {
     type: String,
+  },
+
+  winAmount: {
+    type: Number,
+    default: 0,
+  },
+
+  winnerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
 
   joinedAt: {
@@ -95,7 +106,10 @@ const schema = new mongoose.Schema({
     {
       imageUrl: String,
       updatedAt: Date,
-      updatedBy: mongoose.Schema.Types.ObjectId,
+      updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
     },
   ],
 

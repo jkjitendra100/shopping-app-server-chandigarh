@@ -85,7 +85,9 @@ export const getAllOrders = asyncAwaitError(async (req, res, next) => {
     .skip(skip)
     .limit(limit);
 
-  let totalCount = await Order.countDocuments();
+  let totalCount = await Order.countDocuments({
+    acceptedByUserId: { $exists: true, $eq: [] },
+  });
 
   if (!orders) return next(new ErrorHandler("No order found", 404));
 
@@ -98,19 +100,22 @@ export const getAllOrders = asyncAwaitError(async (req, res, next) => {
 
 export const getAllAcceptedOrders = asyncAwaitError(async (req, res, next) => {
   const { pageNo } = req?.params;
-  let limit = 20;
+  let limit = 10;
   let skip = (pageNo - 1) * limit;
 
   const orders = await Order.find({
-    acceptedByUserId: { $exists: true, $ne: null, $ne: [] },
+    acceptedByUserId: { $in: [req?.user?._id] },
   })
     .populate("orderItems.product")
     .populate("user")
-    .sort({ createdAt: -1 })
+    .populate("acceptedByUserId")
+    .sort({ joinedAt: -1 })
     .skip(skip)
     .limit(limit);
 
-  let totalCount = await Order.countDocuments();
+  let totalCount = await Order.countDocuments({
+    acceptedByUserId: { $exists: true, $ne: null, $ne: [] },
+  });
 
   if (!orders) return next(new ErrorHandler("No order found", 404));
 
@@ -148,6 +153,7 @@ export const getOrderDetails = asyncAwaitError(async (req, res, next) => {
     return next(new ErrorHandler("Please provide order id", 400));
 
   const order = await Order.findById(req.params.id)
+    .populate("user")
     .populate("orderItems.product")
     .populate("acceptedByUserId");
 
@@ -213,13 +219,20 @@ export const acceptOrder = asyncAwaitError(async (req, res, next) => {
     existingOrder.orderItems?.[0]?.product
   );
 
-  const existingUser = await User.findById(req.user._id);
+  if (!existingProduct) return next(new ErrorHandler("Product not found", 404));
 
-  if (existingUser.coins < existingProduct?.price) {
+  const existingUser = await User.findById(req.user._id);
+  if (!existingUser) return next(new ErrorHandler("User not found", 404));
+
+  let totalAmount =
+    Number(existingProduct?.price || 0) *
+    Number(existingOrder?.orderItems?.[0]?.quantity || 0);
+
+  if (existingUser.coins < totalAmount) {
     return next(new ErrorHandler("You don't have enough coin", 404));
   }
 
-  existingUser.coins = existingUser.coins - existingProduct.price;
+  existingUser.coins = existingUser.coins - totalAmount;
   tempArr.push(userId);
 
   existingOrder.username = username;
@@ -239,8 +252,6 @@ export const uploadWinScreenShort = asyncAwaitError(async (req, res, next) => {
   const userId = req.user._id;
 
   const tempScreenShort = req.files?.[0];
-
-  console.log(orderId);
 
   if (!tempScreenShort)
     return next(new ErrorHandler("Please choose screen short", 400));
@@ -318,5 +329,61 @@ export const cancelMyOrder = asyncAwaitError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Order cancelled successfully",
+  });
+});
+
+export const markWinner = asyncAwaitError(async (req, res, next) => {
+  const { orderId, winnerId } = req.body;
+
+  const existingOrder = await Order.findById(orderId);
+  if (!existingOrder) {
+    return next(new ErrorHandler("Order not found", 404));
+  }
+  const existingWinner = await User.findById(winnerId);
+
+  if (!existingWinner) {
+    return next(new ErrorHandler("Winner not found", 404));
+  }
+  existingOrder.winnerId = winnerId;
+
+  await existingOrder.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Data saved successfully",
+  });
+});
+
+export const addWinnerCoin = asyncAwaitError(async (req, res, next) => {
+  const { orderId, winnerId, winAmount } = req.body;
+  const existingOrder = await Order.findById(orderId);
+  if (!existingOrder) {
+    return next(new ErrorHandler("Order not found", 404));
+  }
+  const existingWinner = await User.findById(winnerId);
+
+  if (!existingWinner) {
+    return next(new ErrorHandler("Winner not found", 404));
+  }
+
+  // if (typeof winAmount === "number") {
+  //   return next(new ErrorHandler("Invalid winner amount", 400));
+  // }
+
+  // console.log(existingOrder.winnerId, existingWinner?._id);
+  
+
+  if (existingOrder.winnerId != existingWinner?._id) {
+    return next(new ErrorHandler("This user is not winner", 400));
+  }
+
+  existingOrder.winAmount = Number(winAmount);
+  existingWinner.coins = existingWinner.coins + Number(winAmount);
+  await existingWinner.save();
+  await existingOrder.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Winner coin updated successfully",
   });
 });
