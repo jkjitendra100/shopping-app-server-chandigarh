@@ -371,13 +371,12 @@ export const addWinnerCoin = asyncAwaitError(async (req, res, next) => {
   // }
 
   // console.log(existingOrder.winnerId, existingWinner?._id);
-  
 
-  if (existingOrder.winnerId != existingWinner?._id) {
-    return next(new ErrorHandler("This user is not winner", 400));
-  }
+  // if (existingOrder.winnerId != existingWinner?._id) {
+  //   return next(new ErrorHandler("This user is not winner", 400));
+  // }
 
-  existingOrder.winAmount = Number(winAmount);
+  existingOrder.winAmount = (existingOrder.winAmount || 0) + Number(winAmount);
   existingWinner.coins = existingWinner.coins + Number(winAmount);
   await existingWinner.save();
   await existingOrder.save();
