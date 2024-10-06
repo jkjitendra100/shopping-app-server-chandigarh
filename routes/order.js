@@ -3,6 +3,7 @@ import { isAdmin, isAuthenticated } from "../middlewares/auth.js";
 import {
   acceptOrder,
   addWinnerCoin,
+  adminCancelOrder,
   cancelMyOrder,
   createOrder,
   deleteOrder,
@@ -30,6 +31,7 @@ router.delete("/deleteOrder", isAuthenticated, isAdmin, deleteOrder);
 router.route("/single/:id").get(isAuthenticated, getOrderDetails);
 router.route("/single/:id").put(isAuthenticated, isAdmin, processOrder);
 router.post("/accept", isAuthenticated, acceptOrder);
+router.post("/adminCancelOrder", isAuthenticated, adminCancelOrder);
 router.post(
   "/uploadWinScreenShort",
   isAuthenticated,

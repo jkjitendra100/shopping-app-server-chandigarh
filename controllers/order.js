@@ -301,6 +301,22 @@ export const uploadWinScreenShort = asyncAwaitError(async (req, res, next) => {
   });
 });
 
+export const adminCancelOrder = asyncAwaitError(async (req, res, next) => {
+  const { orderId } = req.body;
+
+  const existingOrder = await Order.findById(orderId);
+
+  if (!existingOrder) return next(new ErrorHandler("No order found", 404));
+
+  existingOrder.status = "cancelled";
+  await existingOrder.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Order Cancelled",
+  });
+});
+
 export const cancelMyOrder = asyncAwaitError(async (req, res, next) => {
   const { orderId } = req.query;
   const userId = req.user._id;
@@ -345,6 +361,7 @@ export const markWinner = asyncAwaitError(async (req, res, next) => {
     return next(new ErrorHandler("Winner not found", 404));
   }
   existingOrder.winnerId = winnerId;
+  existingOrder.status === "resultDeclared";
 
   await existingOrder.save();
 
