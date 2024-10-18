@@ -116,7 +116,6 @@ const schema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["pending", "resultDeclared", "cancelled"],
-    default: "pending",
   },
 
   createdAt: {

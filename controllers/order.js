@@ -38,6 +38,7 @@ export const createOrder = asyncAwaitError(async (req, res, next) => {
     question2,
     question3,
     question4,
+    status: "pending",
   });
 
   // Decrease user coins
@@ -260,7 +261,7 @@ export const uploadWinScreenShort = asyncAwaitError(async (req, res, next) => {
 
   if (!existingOrder) return next(new ErrorHandler("No order found", 404));
 
-  let existingScreenShorts = existingOrder.winScreenShorts;
+  let existingScreenShorts = existingOrder.winScreenShorts || [];
 
   // Apply validations
   if (
