@@ -362,9 +362,11 @@ export const markWinner = asyncAwaitError(async (req, res, next) => {
     return next(new ErrorHandler("Winner not found", 404));
   }
   existingOrder.winnerId = winnerId;
-  existingOrder.status === "resultDeclared";
+  existingOrder.status = "resultDeclared";
 
   await existingOrder.save();
+
+  console.log(existingOrder?.status);
 
   res.status(200).json({
     success: true,
@@ -383,16 +385,6 @@ export const addWinnerCoin = asyncAwaitError(async (req, res, next) => {
   if (!existingWinner) {
     return next(new ErrorHandler("Winner not found", 404));
   }
-
-  // if (typeof winAmount === "number") {
-  //   return next(new ErrorHandler("Invalid winner amount", 400));
-  // }
-
-  // console.log(existingOrder.winnerId, existingWinner?._id);
-
-  // if (existingOrder.winnerId != existingWinner?._id) {
-  //   return next(new ErrorHandler("This user is not winner", 400));
-  // }
 
   existingOrder.winAmount = (existingOrder.winAmount || 0) + Number(winAmount);
   existingWinner.coins = existingWinner.coins + Number(winAmount);
