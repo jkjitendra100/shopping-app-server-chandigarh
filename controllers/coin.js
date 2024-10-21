@@ -5,30 +5,34 @@ import { getDataUri } from "../utils/features.js";
 import { User } from "../models/user.js";
 import { Coin } from "../models/coin.js";
 
-export const addCoinRequest = asyncAwaitError(async (req, res, next) => {
-  const { amount, paymentMode, comment } = req.body;
-  if (!req.file)
-    return next(new ErrorHandler("Payment screenshot required", 400));
+export const addCoinRequest = async (req, res, next) => {
+  try {
+    const { amount, paymentMode, comment } = req.body;
+    if (!req.file)
+      return next(new ErrorHandler("Payment screenshot required", 400));
 
-  const file = getDataUri(req.file);
-  const myCloud = await cloudinary.v2.uploader.upload(file.content);
+    const file = getDataUri(req.file);
+    const myCloud = await cloudinary.v2.uploader.upload(file.content);
 
-  await Coin.create({
-    amount: Number(amount),
-    paymentMode,
-    comment,
-    userId: req?.user?._id,
-    image: {
-      public_id: myCloud.public_id,
-      url: myCloud.secure_url,
-    },
-  });
+    await Coin.create({
+      amount: Number(amount),
+      paymentMode,
+      comment,
+      userId: req?.user?._id,
+      image: {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      },
+    });
 
-  res.status(200).json({
-    success: true,
-    message: "Request placed successfully!",
-  });
-});
+    res.status(200).json({
+      success: true,
+      message: "Request placed successfully!",
+    });
+  } catch (e) {
+    return next(new ErrorHandler(e?.message, 500));
+  }
+};
 
 export const getMyCoinRequests = asyncAwaitError(async (req, res, next) => {
   const coinRequests = await Coin.find({ userId: req.user._id });

@@ -77,8 +77,9 @@ export const getAllOrders = asyncAwaitError(async (req, res, next) => {
   const { pageNo } = req?.params;
   let limit = 10;
   let skip = (pageNo - 1) * limit;
+
   const orders = await Order.find({
-    acceptedByUserId: { $exists: true, $eq: [] },
+    acceptedByUserId: { $exists: true, $ne: req.user._id },
   })
     .populate("orderItems.product")
     .populate("user")
@@ -89,8 +90,6 @@ export const getAllOrders = asyncAwaitError(async (req, res, next) => {
   let totalCount = await Order.countDocuments({
     acceptedByUserId: { $exists: true, $eq: [] },
   });
-
-  if (!orders) return next(new ErrorHandler("No order found", 404));
 
   res.status(200).json({
     success: true,
@@ -105,7 +104,10 @@ export const getAllAcceptedOrders = asyncAwaitError(async (req, res, next) => {
   let skip = (pageNo - 1) * limit;
 
   const orders = await Order.find({
-    acceptedByUserId: { $in: [req?.user?._id] },
+    $or: [
+      { acceptedByUserId: { $in: [req?.user?._id] } }, // Check if user is in acceptedByUserId array
+      { user: req?.user?._id }, // Check if user field matches user ID
+    ],
   })
     .populate("orderItems.product")
     .populate("user")
@@ -126,6 +128,36 @@ export const getAllAcceptedOrders = asyncAwaitError(async (req, res, next) => {
     totalCount,
   });
 });
+
+export const getAllAdminAcceptedOrders = asyncAwaitError(
+  async (req, res, next) => {
+    const { pageNo } = req?.params;
+    let limit = 10;
+    let skip = (pageNo - 1) * limit;
+
+    const orders = await Order.find({
+      // acceptedByUserId: { $in: [req?.user?._id] },
+    })
+      .populate("orderItems.product")
+      .populate("user")
+      .populate("acceptedByUserId")
+      .sort({ joinedAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    let totalCount = await Order.countDocuments({
+      acceptedByUserId: { $exists: true, $ne: null, $ne: [] },
+    });
+
+    if (!orders) return next(new ErrorHandler("No order found", 404));
+
+    res.status(200).json({
+      success: true,
+      orders,
+      totalCount,
+    });
+  }
+);
 
 export const getMyOrders = asyncAwaitError(async (req, res, next) => {
   const { pageNo } = req?.params;
@@ -288,11 +320,16 @@ export const uploadWinScreenShort = asyncAwaitError(async (req, res, next) => {
   const file = getDataUri(tempScreenShort);
   const myCloud = await cloudinary.v2.uploader.upload(file.content);
 
-  existingScreenShorts = existingScreenShorts?.push({
-    imageUrl: myCloud.secure_url,
-    updatedAt: new Date(),
-    updatedBy: userId,
-  });
+  let screenShortsArr = [
+    ...existingScreenShorts,
+    {
+      imageUrl: myCloud.secure_url,
+      updatedAt: new Date(),
+      updatedBy: userId,
+    },
+  ];
+
+  existingOrder.winScreenShorts = screenShortsArr;
 
   await existingOrder.save();
 

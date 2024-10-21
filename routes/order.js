@@ -9,6 +9,7 @@ import {
   deleteOrder,
   getAdminOrders,
   getAllAcceptedOrders,
+  getAllAdminAcceptedOrders,
   getAllOrders,
   getMyOrders,
   getOrderDetails,
@@ -25,6 +26,7 @@ router.get("/my/:pageNo", isAuthenticated, getMyOrders);
 router.get("/admin/:pageNo", isAuthenticated, isAdmin, getAdminOrders);
 router.get("/allOrders/:pageNo", isAuthenticated, getAllOrders);
 router.get("/allAcceptedOrders/:pageNo", isAuthenticated, getAllAcceptedOrders);
+router.get("/allAdminAcceptedOrders/:pageNo", isAuthenticated, getAllAdminAcceptedOrders);
 router.put("/markAsYouWin", isAuthenticated, markWinner);
 router.put("/addWinnerCoin", isAuthenticated, addWinnerCoin);
 router.delete("/deleteOrder", isAuthenticated, isAdmin, deleteOrder);
