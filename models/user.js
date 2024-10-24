@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
 const user = new mongoose.Schema({
   name: {
@@ -90,6 +89,11 @@ const user = new mongoose.Schema({
 
   otp: Number,
   otp_expiry: Date,
+
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 user.pre("save", async function (next) {

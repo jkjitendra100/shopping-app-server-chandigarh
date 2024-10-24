@@ -87,7 +87,7 @@ export const addNewProduct = asyncAwaitError(async (req, res, next) => {
 });
 
 export const updateProduct = asyncAwaitError(async (req, res, next) => {
-  const { name, description, price, players } = req.body;
+  const { name, description, price, players, matchTime } = req.body;
   const { id } = req.params;
   if (!name) return next(new ErrorHandler("Please enter product name", 400));
   if (!description)
@@ -115,6 +115,7 @@ export const updateProduct = asyncAwaitError(async (req, res, next) => {
       price: Number(price),
       images,
       players,
+      matchTime: Number(matchTime),
     },
     { new: true }
   );

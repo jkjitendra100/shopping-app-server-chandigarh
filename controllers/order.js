@@ -129,6 +129,36 @@ export const getAllAcceptedOrders = asyncAwaitError(async (req, res, next) => {
   });
 });
 
+export const getMyCreatedChallenges = asyncAwaitError(
+  async (req, res, next) => {
+    const { pageNo } = req?.params;
+    let limit = 10;
+    let skip = (pageNo - 1) * limit;
+
+    const orders = await Order.find({
+      user: req?.user?._id,
+    })
+      .populate("orderItems.product")
+      .populate("user")
+      .populate("acceptedByUserId")
+      .sort({ joinedAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    let totalCount = await Order.countDocuments({
+      acceptedByUserId: { $exists: true, $ne: null, $ne: [] },
+    });
+
+    if (!orders) return next(new ErrorHandler("No order found", 404));
+
+    res.status(200).json({
+      success: true,
+      orders,
+      totalCount,
+    });
+  }
+);
+
 export const getAllAdminAcceptedOrders = asyncAwaitError(
   async (req, res, next) => {
     const { pageNo } = req?.params;

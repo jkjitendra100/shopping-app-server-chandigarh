@@ -224,7 +224,7 @@ export const resetPassword = asyncAwaitError(async (req, res, next) => {
 
 // Get all users
 export const getAllUsers = asyncAwaitError(async (req, res, next) => {
-  const users = await User.find();
+  const users = await User.find({}).sort({ createdAt: -1 });
 
   res.status(200).json({
     success: true,
