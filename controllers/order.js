@@ -378,10 +378,22 @@ export const adminCancelOrder = asyncAwaitError(async (req, res, next) => {
 
   existingOrder.status = "cancelled";
 
-  const existingUser = await User.findById(req.user._id);
+  const existingUser = await User.findById(existingOrder?.user);
   if (!existingUser) return next(new ErrorHandler("User not found", 404));
+
+  const existingJoinedOrder = await Order.findById(
+    existingOrder?.acceptedByUserId?.[0]
+  );
+  if (!existingJoinedOrder)
+    return next(new ErrorHandler("Joined user not found", 404));
+
   existingUser.coins = existingUser.coins + existingOrder.totalAmount;
 
+  existingJoinedOrder.coins =
+    existingJoinedOrder.coins + existingOrder.totalAmount;
+
+  await existingUser.save();
+  await existingJoinedOrder.save();
   await existingOrder.save();
 
   res.status(200).json({
