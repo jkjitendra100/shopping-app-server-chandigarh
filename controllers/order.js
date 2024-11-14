@@ -377,6 +377,11 @@ export const adminCancelOrder = asyncAwaitError(async (req, res, next) => {
   if (!existingOrder) return next(new ErrorHandler("No order found", 404));
 
   existingOrder.status = "cancelled";
+
+  const existingUser = await User.findById(req.user._id);
+  if (!existingUser) return next(new ErrorHandler("User not found", 404));
+  existingUser.coins = existingUser.coins + existingOrder.totalAmount;
+
   await existingOrder.save();
 
   res.status(200).json({
@@ -456,7 +461,6 @@ export const addWinnerCoin = asyncAwaitError(async (req, res, next) => {
   existingOrder.winAmount = (existingOrder.winAmount || 0) + Number(winAmount);
   existingWinner.coins = existingWinner.coins + Number(winAmount);
   await existingWinner.save();
-  await existingOrder.save();
 
   res.status(200).json({
     success: true,
