@@ -88,6 +88,10 @@ const schema = new mongoose.Schema({
     type: String,
   },
 
+  joinedAt: {
+    type: Date,
+  },
+
   winAmount: {
     type: Number,
     default: 0,
@@ -96,10 +100,6 @@ const schema = new mongoose.Schema({
   winnerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-  },
-
-  joinedAt: {
-    type: Date,
   },
 
   winScreenShorts: [

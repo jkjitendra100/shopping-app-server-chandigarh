@@ -100,10 +100,16 @@ export const UpdateCoinToUserProfile = asyncAwaitError(
   async (req, res, next) => {
     const { coin, userId } = req.body;
 
-    const user = await User.findById(userId);
-    const existingCoin = user?.coins;
-    user.coins = Number(existingCoin) + Number(coin || 0);
-    await user.save();
+    const existingUser = await User.findById(userId);
+
+    if (!existingUser) return new ErrorHandler("User not found", 404);
+
+    const existingCoin = existingUser?.coins;
+
+    console.log("existing User", existingUser);
+
+    existingUser.coins = Number(existingCoin) + Number(coin || 0);
+    await existingUser.save();
 
     res.status(200).json({
       success: true,
