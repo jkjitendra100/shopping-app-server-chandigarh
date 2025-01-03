@@ -10,6 +10,8 @@ import {
   forgotPassword,
   resetPassword,
   getAllUsers,
+  updateAdminMessage,
+  getUserById,
 } from "../controllers/user.js";
 import { isAdmin, isAuthenticated } from "../middlewares/auth.js";
 import { singleFileUpload } from "../middlewares/multer.js";
@@ -26,6 +28,7 @@ router.post("/login", login);
 router.post("/signup", singleFileUpload, signup);
 router.get("/logout", isAuthenticated, logout);
 router.get("/me", isAuthenticated, getMyProfile);
+router.get("/getUserById", isAuthenticated, getUserById);
 
 // Updating user
 router.put("/updateProfile", isAuthenticated, updateProfile);
@@ -36,6 +39,7 @@ router.put(
   singleFileUpload,
   updateProfilePhoto
 );
+router.put("/updateAdminMessage", isAdmin, updateAdminMessage);
 router.patch("/cart/:userId", isAuthenticated, addToCart);
 router.patch(
   "/cart/increaseQuantity/:userId",

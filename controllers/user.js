@@ -106,6 +106,17 @@ export const getMyProfile = asyncAwaitError(async (req, res, next) => {
   });
 });
 
+export const getUserById = asyncAwaitError(async (req, res, next) => {
+  const { userId } = req.query;
+
+  const existingUser = await User.findById(userId);
+
+  res.status(200).json({
+    success: true,
+    data: existingUser,
+  });
+});
+
 // Update user Profile function
 export const updateProfile = asyncAwaitError(async (req, res, next) => {
   const user = await User.findById(req.user._id);
@@ -181,6 +192,23 @@ export const updatePassword = asyncAwaitError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Password updated successfully",
+  });
+});
+
+// Update admin message
+export const updateAdminMessage = asyncAwaitError(async (req, res, next) => {
+  const { adminMessage, userId } = req.body;
+
+  console.log("aaaaa", adminMessage, userId);
+
+  const existingUser = await User.findById(userId);
+  existingUser.adminMessage = adminMessage;
+
+  await existingUser.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Message updated successfully!",
   });
 });
 

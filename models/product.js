@@ -44,6 +44,10 @@ const schema = new mongoose.Schema({
     type: String,
   },
 
+  adminMessage: {
+    type: String,
+  },
+
   createdAt: {
     type: Date,
     default: Date.now(),

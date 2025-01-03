@@ -87,6 +87,10 @@ const user = new mongoose.Schema({
     url: String,
   },
 
+  adminMessage: {
+    type: String,
+  },
+
   otp: Number,
   otp_expiry: Date,
 

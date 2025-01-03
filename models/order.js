@@ -83,8 +83,15 @@ const schema = new mongoose.Schema({
     type: String,
   },
 
-  // Joined by username
-  username: {
+  gameStartTime: {
+    type: String,
+  },
+
+  roomId: {
+    type: String,
+  },
+
+  roomCode: {
     type: String,
   },
 

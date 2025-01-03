@@ -265,7 +265,7 @@ export const processOrder = asyncAwaitError(async (req, res, next) => {
 
 export const acceptOrder = asyncAwaitError(async (req, res, next) => {
   const { orderId } = req.query;
-  const { username } = req.body;
+  const { gameStartTime, roomId, roomCode } = req.body;
   const userId = req.user._id;
 
   const existingOrder = await Order.findById(orderId);
@@ -298,7 +298,9 @@ export const acceptOrder = asyncAwaitError(async (req, res, next) => {
   existingUser.coins = existingUser.coins - totalAmount;
   tempArr.push(userId);
 
-  existingOrder.username = username;
+  existingOrder.gameStartTime = gameStartTime;
+  existingOrder.roomId = roomId;
+  existingOrder.roomCode = roomCode;
   existingOrder.joinedAt = new Date();
 
   await existingOrder.save();
@@ -460,6 +462,8 @@ export const markWinner = asyncAwaitError(async (req, res, next) => {
 
 export const addWinnerCoin = asyncAwaitError(async (req, res, next) => {
   const { orderId, winnerId, winAmount } = req.body;
+  // console.log(orderId, winnerId, winAmount);
+
   const existingOrder = await Order.findById(orderId);
   if (!existingOrder) {
     return next(new ErrorHandler("Order not found", 404));
@@ -473,6 +477,7 @@ export const addWinnerCoin = asyncAwaitError(async (req, res, next) => {
   existingOrder.winAmount = (existingOrder.winAmount || 0) + Number(winAmount);
   existingWinner.coins = existingWinner.coins + Number(winAmount);
   await existingWinner.save();
+  await existingOrder.save();
 
   res.status(200).json({
     success: true,

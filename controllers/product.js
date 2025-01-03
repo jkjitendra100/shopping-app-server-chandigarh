@@ -7,7 +7,7 @@ import { User } from "../models/user.js";
 import { Order } from "../models/order.js";
 
 export const getAllAdminProducts = asyncAwaitError(async (req, res, next) => {
-  const products = await Product.find();
+  const products = await Product.find().sort({ createdAt: -1 });
 
   res.status(200).json({
     success: true,
@@ -43,6 +43,7 @@ export const addNewProduct = asyncAwaitError(async (req, res, next) => {
     question2,
     question3,
     question4,
+    adminMessage,
   } = req.body;
   if (req.files?.length <= 0)
     return next(new ErrorHandler("Please choose product images", 400));
@@ -78,6 +79,7 @@ export const addNewProduct = asyncAwaitError(async (req, res, next) => {
     question2,
     question3,
     question4,
+    adminMessage,
   });
 
   res.status(200).json({
@@ -87,7 +89,18 @@ export const addNewProduct = asyncAwaitError(async (req, res, next) => {
 });
 
 export const updateProduct = asyncAwaitError(async (req, res, next) => {
-  const { name, description, price, players, matchTime } = req.body;
+  const {
+    name,
+    description,
+    price,
+    players,
+    matchTime,
+    adminMessage,
+    question1,
+    question2,
+    question3,
+    question4,
+  } = req.body;
   const { id } = req.params;
   if (!name) return next(new ErrorHandler("Please enter product name", 400));
   if (!description)
@@ -115,6 +128,11 @@ export const updateProduct = asyncAwaitError(async (req, res, next) => {
       price: Number(price),
       images,
       players,
+      question1,
+      question2,
+      question3,
+      question4,
+      adminMessage,
       matchTime: Number(matchTime),
     },
     { new: true }
