@@ -47,7 +47,14 @@ export const getMyCoinRequests = asyncAwaitError(async (req, res, next) => {
 });
 
 export const getAllCoinRequests = asyncAwaitError(async (req, res, next) => {
-  const coinRequests = await Coin.find({}).sort({ createdAt: -1 });
+  const { userId } = req?.query;
+
+  const filter = {};
+  if (userId) {
+    filter.userId = userId;
+  }
+
+  const coinRequests = await Coin.find(filter).sort({ createdAt: -1 });
 
   if (!coinRequests || coinRequests?.length == 0)
     return next(new ErrorHandler("No requests found", 404));

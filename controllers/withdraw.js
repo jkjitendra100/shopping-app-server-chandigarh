@@ -48,9 +48,15 @@ export const markAsPaid = asyncAwaitError(async (req, res, next) => {
 });
 
 export const getAllRequests = asyncAwaitError(async (req, res, next) => {
-  const { pageNo, pageSize } = req.params;
+  const { pageNo = 1, pageSize = 10, userId } = req.query;
 
-  const requests = await Withdraw.find({})
+  const filter = {};
+
+  if (userId) {
+    filter.userId = userId;
+  }
+
+  const requests = await Withdraw.find(filter)
     .skip((Number(pageNo) - 1) * Number(pageSize))
     .limit(Number(pageSize))
     .sort({ createdAt: -1 });

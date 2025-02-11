@@ -11,6 +11,6 @@ const router = express.Router();
 
 router.post("/new", isAuthenticated, addWithdrawRequest);
 router.put("/update/:requestId", isAuthenticated, markAsPaid);
-router.get("/all/:pageNo/:pageSize", isAuthenticated, getAllRequests);
+router.get("/all", isAuthenticated, getAllRequests);
 
 export default router;

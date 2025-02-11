@@ -75,7 +75,7 @@ export const getAdminOrders = asyncAwaitError(async (req, res, next) => {
 
 export const getAllOrders = asyncAwaitError(async (req, res, next) => {
   const { pageNo } = req?.params;
-  let limit = 10;
+  let limit = 50;
   let skip = (pageNo - 1) * limit;
 
   const orders = await Order.find({
@@ -100,7 +100,7 @@ export const getAllOrders = asyncAwaitError(async (req, res, next) => {
 
 export const getAllAcceptedOrders = asyncAwaitError(async (req, res, next) => {
   const { pageNo } = req?.params;
-  let limit = 10;
+  let limit = 50;
   let skip = (pageNo - 1) * limit;
 
   const orders = await Order.find({

@@ -7,7 +7,7 @@ import { User } from "../models/user.js";
 import { Order } from "../models/order.js";
 
 export const getAllAdminProducts = asyncAwaitError(async (req, res, next) => {
-  const products = await Product.find().sort({ createdAt: -1 });
+  const products = await Product.find({}).sort({ createdAt: -1 });
 
   res.status(200).json({
     success: true,
