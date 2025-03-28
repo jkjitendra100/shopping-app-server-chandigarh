@@ -5,6 +5,7 @@ import cloudinary from "cloudinary";
 import { getDataUri } from "../utils/features.js";
 import { User } from "../models/user.js";
 import { Order } from "../models/order.js";
+import mongoose from "mongoose";
 
 export const getAllAdminProducts = asyncAwaitError(async (req, res, next) => {
   const products = await Product.find({}).sort({ createdAt: -1 });
@@ -22,12 +23,33 @@ export const getProductDetails = asyncAwaitError(async (req, res, next) => {
     "orderItems.product": req.params.id,
   });
 
+  const totalOrderedAmount = await Order.aggregate([
+    {
+      $unwind: "$orderItems", // Unwind the orderItems array
+    },
+    {
+      $match: {
+        "orderItems.product": new mongoose.Types.ObjectId(req.params.id), // Match the product ID
+      },
+    },
+    {
+      $group: {
+        _id: null, // We don't need to group by anything specific
+        totalSum: {
+          $sum: { $multiply: ["$orderItems.price", "$orderItems.quantity"] }, // Sum price * quantity
+        },
+      },
+    },
+  ]);
+
   if (!product) return next(new ErrorHandler("Product not found", 404));
 
   res.status(200).json({
     success: true,
-    product,
     ordersCount: ordersCount,
+    totalOrderedAmount:
+      totalOrderedAmount.length > 0 ? totalOrderedAmount[0].totalSum : 0,
+    product,
   });
 });
 
@@ -327,7 +349,14 @@ export const getProductOrdersReport = asyncAwaitError(
 
     const orders = await Order.find({
       "orderItems.product": productId,
-    }).populate("user");
+    })
+      .populate({
+        path: "user", // Populate the "user" field
+        options: {
+          sort: { name: 1 }, // Sort by "name" in ascending order (1 for ascending, -1 for descending)
+        },
+      })
+      .sort({ "user.name": 1 });
 
     res.status(200).json({
       success: true,
